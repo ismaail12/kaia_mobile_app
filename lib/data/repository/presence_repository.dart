@@ -17,7 +17,7 @@ import 'package:geolocator/geolocator.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class PresenceRepository {
-  Future<Either<Response, ClockInResponse>> clockIn(
+  Future<Either<String, ClockInResponse>> clockIn(
       ClockInRequest request) async {
     final sharedPreferences = await SharedPreferences.getInstance();
     final token = sharedPreferences.getString('token');
@@ -26,14 +26,17 @@ class PresenceRepository {
       'Authorization': 'Bearer $token'
     }, body: {
       'type': request.type,
+      'phone_id': request.phoneId,
       'ci_long': request.ciLong.toString(),
       'ci_lat': request.ciLat.toString(),
     });
 
+
+
     if (response.statusCode == 200) {
       return Right(ClockInResponse.fromJson(jsonDecode(response.body)));
     } else {
-      return Left(response);
+      return Left(jsonDecode(response.body)['message']);
     }
   }
 

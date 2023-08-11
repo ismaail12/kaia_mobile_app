@@ -1,3 +1,5 @@
+
+import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/material.dart';
 
 class CustomUtils {
@@ -81,5 +83,12 @@ class CustomUtils {
       context: context,
       builder: (BuildContext context) => alert,
     );
+  }
+
+
+
+  static Future<AndroidDeviceInfo> getInfo() async {
+    final deviceInfo = DeviceInfoPlugin();
+    return await deviceInfo.androidInfo;
   }
 }

@@ -13,6 +13,7 @@ import 'package:kaia_mobile_app/data/request/clockout_request.dart';
 import 'package:kaia_mobile_app/data/response/last5_response.dart';
 import 'package:kaia_mobile_app/data/response/offlocs_response.dart';
 import 'package:kaia_mobile_app/utils/constant.dart';
+import 'package:kaia_mobile_app/utils/custom_utils.dart';
 import 'package:kaia_mobile_app/utils/internet.dart';
 import 'package:kaia_mobile_app/utils/presences_utils.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -26,6 +27,7 @@ class PresenceBloc extends HydratedBloc<PresenceEvent, PresenceState> {
   String? token;
   late final StreamSubscription internetSubscription;
   bool internetConnection = false;
+  bool isPhoneActivated = true;
 
   PresenceBloc({required this.internetBloc})
       : super(PresenceState(status: ClockedStatus.initial)) {
@@ -87,16 +89,21 @@ class PresenceBloc extends HydratedBloc<PresenceEvent, PresenceState> {
       return;
     }
 
+    if (!isPhoneActivated) {
+      emit(PresenceState(
+          status: ClockedStatus.error,
+          message: 'Perangkat belum diaktifkan',
+          last5Presences: last5Response));
+      return;
+    }
 
     // try {
     //       final responseOfflocs = await get(Uri.parse('$API_URL/offlocs'),
     //     headers: {'Authorization': 'Bearer $token'});
     // final jsonResponse =
     //     OfficeLocationResponse.fromJson(jsonDecode(responseOfflocs.body));
+
     final position = await _determinePosition();
-
-
-
 
     // double distanceInMeters = Geolocator.distanceBetween(
     //     limitDecimalPlaces(double.parse(jsonResponse.data.lat)),
@@ -127,17 +134,25 @@ class PresenceBloc extends HydratedBloc<PresenceEvent, PresenceState> {
 
     // print(limitDecimalPlaces(distanceInMeters, limit: 2));
 
-    final response = await presenceRepository.clockIn(ClockInRequest(
-        type: event.type,
-        ciLong: position.longitude,
-        ciLat: position.latitude));
+    final androidInfo = await CustomUtils.getInfo();
+    final response = await presenceRepository.clockIn(
+      ClockInRequest(
+          type: event.type,
+          phoneId: androidInfo.id,
+          ciLong: position.longitude,
+          ciLat: position.latitude),
+    );
 
     last5Response = (await presenceRepository.getLast5presences())
         .fold((l) => null, (r) => r);
 
     response.fold((left) {
-      emit(PresenceState(
-          status: ClockedStatus.error, message: 'Terjadi kesalahan'));
+      emit(
+        PresenceState(
+            status: ClockedStatus.error,
+            last5Presences: last5Response,
+            message: left),
+      );
     }, (right) {
       emit(PresenceState(
           status: ClockedStatus.clockedIn,
@@ -145,7 +160,6 @@ class PresenceBloc extends HydratedBloc<PresenceEvent, PresenceState> {
           last5Presences: last5Response,
           message: right.message));
     });
-
   }
 
   void _onPresenceClockOut(
@@ -195,8 +209,7 @@ class PresenceBloc extends HydratedBloc<PresenceEvent, PresenceState> {
           last5Presences: last5Response,
           message: 'Terjadi kesalahan'));
       return;
-    }, (right){
-
+    }, (right) {
       emit(PresenceState(
           status: ClockedStatus.clockedOut,
           id: right.data.id,
@@ -241,3 +254,5 @@ Future<Position> _determinePosition() async {
   return await Geolocator.getCurrentPosition(
       desiredAccuracy: LocationAccuracy.high);
 }
+
+bool _activatePhone(bool isEnabled) => isEnabled;

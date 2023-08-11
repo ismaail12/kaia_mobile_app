@@ -1,17 +1,26 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:kaia_mobile_app/bloc/auth/auth_bloc.dart';
+import 'package:kaia_mobile_app/bloc/bloc/device_bloc.dart';
 import 'package:kaia_mobile_app/presentation/screen/change_pass.dart';
-import 'package:kaia_mobile_app/presentation/screen/change_profile.dart';
 import 'package:kaia_mobile_app/presentation/screen/login_screen.dart';
 import 'package:kaia_mobile_app/utils/custom_utils.dart';
 import 'package:kaia_mobile_app/utils/default_colors.dart';
 
-class AccountScreen extends StatelessWidget {
+class AccountScreen extends StatefulWidget {
   const AccountScreen({super.key});
 
   @override
+  State<AccountScreen> createState() => _AccountScreenState();
+}
+
+class _AccountScreenState extends State<AccountScreen> {
+  bool isActivated = false;
+
+  @override
   Widget build(BuildContext context) {
+    context.read<DeviceBloc>().add(const GetPhone());
+
     return SingleChildScrollView(
       child: Padding(
         padding: const EdgeInsets.all(16),
@@ -30,19 +39,69 @@ class AccountScreen extends StatelessWidget {
             const SizedBox(
               height: 16 * 2,
             ),
-            InkWell(
-              onTap: () {
-                // Navigator.push(
-                //     context,
-                //     MaterialPageRoute(
-                //       builder: (BuildContext context) => ChangeProfile(),
-                //     ));
+            BlocBuilder<DeviceBloc, DeviceState>(
+              builder: (context, state) {
+                return ListTile(
+                    onTap: () {
+                      if (state is DeviceNotActive) {
+                        CustomUtils.customAlertConfirmDialog(
+                          context,
+                          () async {
+                            // setState(() {
+                            //   isActivated = true;
+                            // });
+
+                            final androidInfo = await CustomUtils.getInfo();
+
+                            if (!mounted) return;
+                            context
+                                .read<DeviceBloc>()
+                                .add(UpdatePhone(androidInfo.id));
+                          },
+                          message:
+                              'Daftarkan perangkat ini sebagai perangkat yang digunakan untuk melakukan presensi?',
+                          title: 'Aktivasi Perangkat',
+                        );
+                      } else {
+                        showDialog(
+                          context: context,
+                          builder: (context) {
+                            return AlertDialog(
+                              title:  const Text("Perangkat Sudah Terdaftar"),
+                              content:  const Text("Perangkat sudah terdaftar, jika ingin melakukan perubahan silagkan hubungi admin"),
+                              actions: [
+                                TextButton(
+                                  child:  const Text('Ok'),
+                                  onPressed: () => Navigator.of(context).pop(),
+                                ),
+                              ],
+                            );
+                          },
+                        );
+                      }
+                    },
+                    leading: const Icon(Icons.phone_android, color: kPrimary),
+                    title: const Text(
+                      'Aktivasi Perangkat',
+                    ),
+                    trailing: Chip(
+                      visualDensity:
+                          const VisualDensity(horizontal: -4, vertical: -4),
+                      backgroundColor: state is DeviceActive
+                          ? Colors.green[100]
+                          : Colors.red[100],
+                      label: Text(
+                        state is DeviceActive
+                            ? 'Sudah Aktif'
+                            : state.toString(),
+                        style: TextStyle(
+                            color: state is DeviceActive
+                                ? Colors.green
+                                : Colors.red,
+                            fontSize: 12),
+                      ),
+                    ));
               },
-              child: const ListTile(
-                leading: Icon(Icons.person, color: kPrimary),
-                title: Text('Aktifasi Perangkat'),
-                trailing: Icon(Icons.navigate_next),
-              ),
             ),
 
             InkWell(
@@ -67,7 +126,7 @@ class AccountScreen extends StatelessWidget {
                     "Aplikasi dibuat untuk memenuhi tugas akhir skripsi Teknik Informatika Universitas Pamulang");
               },
               child: const ListTile(
-                leading: Icon(Icons.phone_android, color: kPrimary),
+                leading: Icon(Icons.info, color: kPrimary),
                 title: Text('Tentang Aplikasi'),
                 trailing: Icon(Icons.navigate_next),
               ),
@@ -78,7 +137,7 @@ class AccountScreen extends StatelessWidget {
                     "Jika ada pertannyaan atau kendala bisa 08994580581");
               },
               child: const ListTile(
-                leading: Icon(Icons.chat_bubble, color: kPrimary),
+                leading: Icon(Icons.question_answer, color: kPrimary),
                 title: Text('Bantuan'),
                 trailing: Icon(Icons.navigate_next),
               ),

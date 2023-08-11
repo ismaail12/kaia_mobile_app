@@ -9,15 +9,15 @@ class AuthState extends Equatable {
   User? user;
   String? message;
   String? token;
+  bool? phoneStatus;
   final AuthStatus status;
 
-
-  AuthState({
-    required this.status,
-    this.user,
-    this.token,
-    this.message,
-  });
+  AuthState(
+      {required this.status,
+      this.user,
+      this.token,
+      this.message,
+      this.phoneStatus});
 
   Map<String, dynamic> toJson() {
     return {
@@ -25,7 +25,7 @@ class AuthState extends Equatable {
       'status': status.name,
       'message': message,
       'token': token,
-
+      'phoneStatus': phoneStatus,
     };
   }
 
@@ -34,10 +34,10 @@ class AuthState extends Equatable {
       user: User.fromJson(json['user']),
       message: json['message'],
       token: json['token'],
+      phoneStatus: json['phoneStatus'],
       status: AuthStatus.values.firstWhere(
         (element) => element.name.toString() == json['status'],
       ),
-
     );
   }
 

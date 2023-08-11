@@ -75,6 +75,7 @@ class User {
     String name;
     String email;
     dynamic emailVerifiedAt;
+    dynamic phoneStatus;
     String jabatan;
     String username;
     String kontak;
@@ -88,6 +89,7 @@ class User {
         required this.name,
         required this.email,
         this.emailVerifiedAt,
+        this.phoneStatus,
         required this.jabatan,
         required this.username,
         required this.kontak,
@@ -102,6 +104,7 @@ class User {
         String? name,
         String? email,
         dynamic emailVerifiedAt,
+        dynamic phoneStatus,
         String? jabatan,
         String? username,
         String? kontak,
@@ -115,6 +118,7 @@ class User {
             name: name ?? this.name,
             email: email ?? this.email,
             emailVerifiedAt: emailVerifiedAt ?? this.emailVerifiedAt,
+            phoneStatus: phoneStatus ?? this.phoneStatus,
             jabatan: jabatan ?? this.jabatan,
             username: username ?? this.username,
             kontak: kontak ?? this.kontak,
@@ -137,6 +141,7 @@ class User {
         username: json["username"],
         kontak: json["kontak"],
         alamat: json["alamat"],
+        phoneStatus: json["phoneStatus"],
         role: json["role"],
         createdAt: DateTime.parse(json["created_at"]),
         updatedAt: DateTime.parse(json["updated_at"]),
@@ -151,6 +156,7 @@ class User {
         "username": username,
         "kontak": kontak,
         "alamat": alamat,
+        "phoneStatus": phoneStatus,
         "role": role,
         "created_at": createdAt.toIso8601String(),
         "updated_at": updatedAt.toIso8601String(),

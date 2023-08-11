@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:hydrated_bloc/hydrated_bloc.dart';
 import 'package:kaia_mobile_app/bloc/app_bloc_observer.dart';
 import 'package:kaia_mobile_app/bloc/auth/auth_bloc.dart';
+import 'package:kaia_mobile_app/bloc/bloc/device_bloc.dart';
 import 'package:kaia_mobile_app/bloc/internet/internet_bloc.dart';
 import 'package:kaia_mobile_app/bloc/presence/presence_bloc.dart';
 import 'package:kaia_mobile_app/cubit/cubit/navbar_cubit.dart';
@@ -37,6 +38,9 @@ class MyApp extends StatelessWidget {
         ),
         BlocProvider<InternetBloc>(
           create: (context) => InternetBloc(),
+        ),
+        BlocProvider<DeviceBloc>(
+          create: (context) => DeviceBloc(),
         ),
         BlocProvider<PresenceBloc>(
           create: (context) => PresenceBloc(internetBloc: context.read<InternetBloc>())..add(PresenceInitial()),

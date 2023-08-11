@@ -7,15 +7,20 @@ import 'package:kaia_mobile_app/bloc/presence/presence_bloc.dart';
 import 'package:kaia_mobile_app/cubit/cubit/type_chip_cubit.dart';
 import 'package:kaia_mobile_app/presentation/components/custom_button.dart';
 import 'package:kaia_mobile_app/presentation/components/custom_loading.dart';
-import 'package:kaia_mobile_app/presentation/components/custom_textfield.dart';
 import 'package:kaia_mobile_app/utils/custom_utils.dart';
 import 'package:kaia_mobile_app/utils/default_colors.dart';
+
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
 
+
+
   @override
   Widget build(BuildContext context) {
+
+
+    
     Map<String, String> getDateNow() {
       initializeDateFormatting('id');
       return {
@@ -300,17 +305,17 @@ class HomeScreen extends StatelessWidget {
                           Row(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Column(
+                              const Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
-                                children: const [
+                                children: [
                                   Text('Jam Masuk'),
                                   Text('Jam Pulang'),
                                   // Text('Keterangan'),
                                 ],
                               ),
                               const SizedBox(width: 8),
-                              Column(
-                                children: const [
+                              const Column(
+                                children: [
                                   Text(':'),
                                   Text(':'),
                                   // Text(':'),

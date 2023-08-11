@@ -62,6 +62,7 @@ class AuthBloc extends HydratedBloc<AuthEvent, AuthState> {
           status: AuthStatus.authenticated,
           user: left.data.user,
           token: left.data.token,
+          phoneStatus: left.data.user.phoneStatus,
           message: 'Berhasil login'));
     }, (right) {
       emit(AuthState(status: AuthStatus.error, message: right));

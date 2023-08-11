@@ -110,7 +110,7 @@ class _PresenceScreenState extends State<PresenceScreen> {
         children: [
           const Padding(
             padding: EdgeInsets.all(16),
-            child: Text("Hasil Presensi",
+            child: Text("Kalender",
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
