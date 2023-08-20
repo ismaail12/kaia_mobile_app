@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:intl/intl.dart';
 import 'package:kaia_mobile_app/bloc/auth/auth_bloc.dart';
+import 'package:kaia_mobile_app/bloc/bloc/device_bloc.dart';
 import 'package:kaia_mobile_app/bloc/presence/presence_bloc.dart';
 import 'package:kaia_mobile_app/cubit/cubit/type_chip_cubit.dart';
 import 'package:kaia_mobile_app/presentation/components/custom_button.dart';
@@ -10,17 +11,12 @@ import 'package:kaia_mobile_app/presentation/components/custom_loading.dart';
 import 'package:kaia_mobile_app/utils/custom_utils.dart';
 import 'package:kaia_mobile_app/utils/default_colors.dart';
 
-
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
 
-
-
   @override
   Widget build(BuildContext context) {
-
-
-    
+    context.read<DeviceBloc>().add(const GetPhone());
     Map<String, String> getDateNow() {
       initializeDateFormatting('id');
       return {
@@ -78,7 +74,6 @@ class HomeScreen extends StatelessWidget {
                           mainAxisAlignment: MainAxisAlignment.end,
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            
                             Text(state.user?.name ?? 'no name',
                                 style: TextStyle(
                                     color: Colors.grey[800],
@@ -163,34 +158,41 @@ class HomeScreen extends StatelessWidget {
                           ? Colors.red
                           : const Color.fromRGBO(53, 197, 67, 1);
 
-                      return CusElevatedButton(
-                        text: state.status == ClockedStatus.loading
-                            ? const CustLoading(size: 20)
-                            : Text(
-                                text,
-                                style: const TextStyle(
-                                    fontWeight: FontWeight.bold),
-                              ),
-                        color: state.status == ClockedStatus.loading
-                            ? Colors.transparent
-                            : color,
-                        action: () {
-                          if (state.status == ClockedStatus.clockedIn) {
-                            if (state.status != ClockedStatus.loading) {
-                              CustomUtils.customAlertConfirmDialog(
-                                  context,
-                                  () => context.read<PresenceBloc>().add(
-                                      PresenceClockOut(
-                                          id: context
-                                              .read<PresenceBloc>()
-                                              .state
-                                              .id!)),
-                                  title: 'Clock out',
-                                  message: 'Apakah anda yakin?');
-                            }
-                          } else {
-                            showClockInBottomSheet(context);
+                      return BlocBuilder<DeviceBloc, DeviceState>(
+                        builder: (context, deviceState) {
+                          if (deviceState is! DeviceActive) {
+                            return Container();
                           }
+                          return CusElevatedButton(
+                            text: state.status == ClockedStatus.loading
+                                ? const CustLoading(size: 20)
+                                : Text(
+                                    text,
+                                    style: const TextStyle(
+                                        fontWeight: FontWeight.bold),
+                                  ),
+                            color: state.status == ClockedStatus.loading
+                                ? Colors.transparent
+                                : color,
+                            action: () {
+                              if (state.status == ClockedStatus.clockedIn) {
+                                if (state.status != ClockedStatus.loading) {
+                                  CustomUtils.customAlertConfirmDialog(
+                                      context,
+                                      () => context.read<PresenceBloc>().add(
+                                          PresenceClockOut(
+                                              id: context
+                                                  .read<PresenceBloc>()
+                                                  .state
+                                                  .id!)),
+                                      title: 'Clock out',
+                                      message: 'Apakah anda yakin?');
+                                }
+                              } else {
+                                showClockInBottomSheet(context);
+                              }
+                            },
+                          );
                         },
                       );
                     },
@@ -382,7 +384,8 @@ class HomeScreen extends StatelessWidget {
                       color: Colors.grey[800], fontWeight: FontWeight.bold)),
               const SizedBox(height: 4),
               Text(
-                context.read<AuthBloc>().state.user?.jabatan.toString()?? 'Jabatan',
+                context.read<AuthBloc>().state.user?.jabatan.toString() ??
+                    'Jabatan',
                 style: TextStyle(color: Colors.grey[600]),
               ),
               const SizedBox(height: 16),

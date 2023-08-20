@@ -41,15 +41,35 @@ class _AccountScreenState extends State<AccountScreen> {
             ),
             BlocBuilder<DeviceBloc, DeviceState>(
               builder: (context, state) {
+
                 return ListTile(
                     onTap: () {
+
+                      if (state is DeviceLoading) {
+                         Container();
+                      }
+
+                      if (state is DeviceHasRegistered) {
+                        showDialog(
+                          context: context,
+                          builder: (context) {
+                            return AlertDialog(
+                              title:  const Text("Perangkat tidak aktif"),
+                              content:  const Text("Anda sudah mendaftarkan perangkat, namun perangkat yang anda gunakan tidak terdaftar. jika ingin melakukan perubahan silagkan hubungi admin"),
+                              actions: [
+                                TextButton(
+                                  child:  const Text('Ok'),
+                                  onPressed: () => Navigator.of(context).pop(),
+                                ),
+                              ],
+                            );
+                          },
+                        );
+                      }
                       if (state is DeviceNotActive) {
                         CustomUtils.customAlertConfirmDialog(
                           context,
                           () async {
-                            // setState(() {
-                            //   isActivated = true;
-                            // });
 
                             final androidInfo = await CustomUtils.getInfo();
 
@@ -62,7 +82,9 @@ class _AccountScreenState extends State<AccountScreen> {
                               'Daftarkan perangkat ini sebagai perangkat yang digunakan untuk melakukan presensi?',
                           title: 'Aktivasi Perangkat',
                         );
-                      } else {
+                      } 
+                        
+                      if (state is DeviceActive) {
                         showDialog(
                           context: context,
                           builder: (context) {
@@ -93,7 +115,7 @@ class _AccountScreenState extends State<AccountScreen> {
                       label: Text(
                         state is DeviceActive
                             ? 'Sudah Aktif'
-                            : state.toString(),
+                            : 'Perangkat tidak aktif',
                         style: TextStyle(
                             color: state is DeviceActive
                                 ? Colors.green
@@ -144,14 +166,14 @@ class _AccountScreenState extends State<AccountScreen> {
             ),
             BlocListener<AuthBloc, AuthState>(
               listener: (context, state) {
-                if (state.status == AuthStatus.onLogin) {
-                  Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(
-                      builder: (BuildContext context) => LoginScreen(),
-                    ),
-                  );
-                }
+                // if (state.status == AuthStatus.onLogin) {
+                //   Navigator.pushReplacement(
+                //     context,
+                //     MaterialPageRoute(
+                //       builder: (BuildContext context) => LoginScreen(),
+                //     ),
+                //   );
+                // }
               },
               child: InkWell(
                 onTap: () {

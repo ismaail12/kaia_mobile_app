@@ -8,6 +8,7 @@ import 'package:kaia_mobile_app/bloc/internet/internet_bloc.dart';
 import 'package:kaia_mobile_app/data/repository/auth_repository.dart';
 import 'package:kaia_mobile_app/data/response/login_response.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:restart_app/restart_app.dart';
 part 'auth_event.dart';
 part 'auth_state.dart';
 
@@ -25,6 +26,7 @@ class AuthBloc extends HydratedBloc<AuthEvent, AuthState> {
     on<AuthLogin>(_onAuthLogin);
     on<AuthLogout>(_onAuthLogout);
     _getSrefInstance();
+    
     internetSubscription =
         internetBloc.stream.listen((InternetState internetState) {
       internetState is Connected
@@ -72,6 +74,7 @@ class AuthBloc extends HydratedBloc<AuthEvent, AuthState> {
   void _clearHydrated() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     await prefs.clear();
+    Restart.restartApp();
   }
 
   Future<void> _onAuthLogout(AuthLogout event, Emitter<AuthState> emit) async {
@@ -83,8 +86,8 @@ class AuthBloc extends HydratedBloc<AuthEvent, AuthState> {
     }
     sharedPreferences?.remove('token');
     await authRepository.logout(event.token);
-    _clearHydrated();
     emit(AuthState(status: AuthStatus.onLogin));
+    _clearHydrated();
   }
 
   @override

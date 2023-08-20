@@ -7,6 +7,8 @@ abstract class DeviceState extends Equatable {
   List<Object> get props => [];
 }
 
+class DeviceLoading extends DeviceState {}
+
 class DeviceActive extends DeviceState {
   final String deviceId;
   const DeviceActive(this.deviceId);
@@ -16,3 +18,5 @@ class DeviceActive extends DeviceState {
 }
 
 class DeviceNotActive extends DeviceState {}
+
+class DeviceHasRegistered extends DeviceState {}
