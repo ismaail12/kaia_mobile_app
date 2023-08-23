@@ -185,15 +185,14 @@ class PresenceBloc extends HydratedBloc<PresenceEvent, PresenceState> {
       limitDecimalPlaces(position.longitude),
     );
 
-    // print(distanceInMeters);
-    // if (distanceInMeters > 200) {
-    //   emit(PresenceState(
-    //     status: ClockedStatus.error,
-    //     message: 'Lokasi tidak sesuai',
-    //   ));
-    //   emit(state);
-    //   return;
-    // }
+    if (distanceInMeters > 200) {
+      emit(PresenceState(
+        status: ClockedStatus.error,
+        message: 'Lokasi tidak sesuai',
+      ));
+      emit(state);
+      return;
+    }
 
     final response = await presenceRepository.clockOut(ClockOutRequest(
         id: event.id, coLong: position.longitude, coLat: position.latitude));

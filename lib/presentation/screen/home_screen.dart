@@ -461,7 +461,6 @@ class HomeScreen extends StatelessWidget {
                                 type: typeChipState['normal'] == true
                                     ? 'normal'
                                     : 'overtime'));
-                            print(state.status);
                           }
                         } else {
                           CustomUtils.displaySnackBarRed(
