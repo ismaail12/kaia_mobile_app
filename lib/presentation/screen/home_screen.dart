@@ -17,6 +17,7 @@ class HomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     context.read<DeviceBloc>().add(const GetPhone());
+    context.read<PresenceBloc>().add(PresenceInitial());
     Map<String, String> getDateNow() {
       initializeDateFormatting('id');
       return {
@@ -177,14 +178,15 @@ class HomeScreen extends StatelessWidget {
                             action: () {
                               if (state.status == ClockedStatus.clockedIn) {
                                 if (state.status != ClockedStatus.loading) {
-                                  CustomUtils.customAlertConfirmDialog(
-                                      context,
-                                      () => context.read<PresenceBloc>().add(
-                                          PresenceClockOut(
-                                              id: context
-                                                  .read<PresenceBloc>()
-                                                  .state
-                                                  .id!)),
+                                  CustomUtils.customAlertConfirmDialog(context,
+                                      () {
+                                    context.read<PresenceBloc>().add(
+                                        PresenceClockOut(
+                                            id: context
+                                                .read<PresenceBloc>()
+                                                .state
+                                                .id!));
+                                  },
                                       title: 'Clock out',
                                       message: 'Apakah anda yakin?');
                                 }
@@ -224,10 +226,6 @@ class HomeScreen extends StatelessWidget {
                   style: TextStyle(
                       color: Colors.grey[800], fontWeight: FontWeight.bold),
                 ),
-                // Text(
-                //   'Lihat Semua',
-                //   style: TextStyle(color: Colors.blue[600]),
-                // ),
               ],
             )),
           ),
@@ -242,8 +240,11 @@ class HomeScreen extends StatelessWidget {
                   child: Container(
                     height: 100,
                     decoration: BoxDecoration(
-                        color: kPrimary,
+                        color: Colors.white,
                         borderRadius: BorderRadius.circular(12)),
+                    child: const Center(
+                      child: Text('Tidak ada data'),
+                    ),
                   ),
                 ),
               );

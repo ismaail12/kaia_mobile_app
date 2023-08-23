@@ -75,6 +75,7 @@ class PresenceBloc extends HydratedBloc<PresenceEvent, PresenceState> {
 
   void _onPresenceClockIn(
       PresenceClockIn event, Emitter<PresenceState> emit) async {
+    final state = this.state;
     Last5Response? last5Response =
         (await presenceRepository.getLast5presences())
             .fold((l) => null, (r) => r);
@@ -86,6 +87,7 @@ class PresenceBloc extends HydratedBloc<PresenceEvent, PresenceState> {
           status: ClockedStatus.error,
           message: 'Periksa kembali jaringan internet anda',
           last5Presences: last5Response));
+          emit(state);
       return;
     }
 
@@ -94,45 +96,35 @@ class PresenceBloc extends HydratedBloc<PresenceEvent, PresenceState> {
           status: ClockedStatus.error,
           message: 'Perangkat belum diaktifkan',
           last5Presences: last5Response));
+          emit(state);
       return;
     }
 
     // try {
-    //       final responseOfflocs = await get(Uri.parse('$API_URL/offlocs'),
-    //     headers: {'Authorization': 'Bearer $token'});
-    // final jsonResponse =
-    //     OfficeLocationResponse.fromJson(jsonDecode(responseOfflocs.body));
+    final responseOfflocs = await get(Uri.parse('$API_URL/offlocs'),
+        headers: {'Authorization': 'Bearer $token'});
+    final jsonResponse =
+        OfficeLocationResponse.fromJson(jsonDecode(responseOfflocs.body));
 
     final position = await _determinePosition();
 
-    // double distanceInMeters = Geolocator.distanceBetween(
-    //     limitDecimalPlaces(double.parse(jsonResponse.data.lat)),
-    //     limitDecimalPlaces(double.parse(jsonResponse.data.long)),
-    //     limitDecimalPlaces(position.latitude),
-    //     limitDecimalPlaces(position.longitude),
-    //     );
+    double distanceInMeters = Geolocator.distanceBetween(
+      limitDecimalPlaces(double.parse(jsonResponse.data.lat)),
+      limitDecimalPlaces(double.parse(jsonResponse.data.long)),
+      limitDecimalPlaces(position.latitude),
+      limitDecimalPlaces(position.longitude),
+    );
 
-    // if (distanceInMeters > 50) {
-    //   emit(PresenceState(
-    //       status: ClockedStatus.error, message: 'Lokasi tidak sesuai',
-    //       last5Presences: last5Response),);
-    //   return;
-    // }
-
-    // double distanceInMeters = Geolocator.distanceBetween(
-    //   limitDecimalPlaces(-6.489632953337665),
-    //   limitDecimalPlaces(106.73979822474786),
-    //   limitDecimalPlaces(-6.490861527088263),
-    //   limitDecimalPlaces(106.7401120431931),
-    // );
-
-    // double distanceInMeters = haversine(
-    // -6.489632953337665,
-    // 106.73979822474786,
-    // -6.4890861527088263,
-    // 106.7401120431931);
-
-    // print(limitDecimalPlaces(distanceInMeters, limit: 2));
+    if (distanceInMeters > 200) {
+      emit(
+        PresenceState(
+            status: ClockedStatus.error,
+            message: 'Lokasi tidak sesuai',
+            last5Presences: last5Response),
+      );
+      emit(state);
+      return;
+    }
 
     final androidInfo = await CustomUtils.getInfo();
     final response = await presenceRepository.clockIn(
@@ -164,6 +156,7 @@ class PresenceBloc extends HydratedBloc<PresenceEvent, PresenceState> {
 
   void _onPresenceClockOut(
       PresenceClockOut event, Emitter<PresenceState> emit) async {
+    final state = this.state;
     Last5Response? last5Response =
         (await presenceRepository.getLast5presences())
             .fold((l) => null, (r) => r);
@@ -175,28 +168,31 @@ class PresenceBloc extends HydratedBloc<PresenceEvent, PresenceState> {
       emit(PresenceState(
           status: ClockedStatus.error,
           message: 'Periksa kembali jaringan internet anda'));
+          emit(state);
       return;
     }
 
-    // final responseOfflocs = await get(Uri.parse('$API_URL/offlocs'),
-    //     headers: {'Authorization': 'Bearer $token'});
-    // final jsonResponse =
-    //     OfficeLocationResponse.fromJson(jsonDecode(responseOfflocs.body));
+    final responseOfflocs = await get(Uri.parse('$API_URL/offlocs'),
+        headers: {'Authorization': 'Bearer $token'});
+    final jsonResponse =
+        OfficeLocationResponse.fromJson(jsonDecode(responseOfflocs.body));
     final position = await _determinePosition();
 
-    // double distanceInMeters = Geolocator.distanceBetween(
-    //   limitDecimalPlaces(double.parse(jsonResponse.data.lat)),
-    //   limitDecimalPlaces(double.parse(jsonResponse.data.long)),
-    //   limitDecimalPlaces(position.latitude),
-    //   limitDecimalPlaces(position.longitude),
-    // );
+    double distanceInMeters = Geolocator.distanceBetween(
+      limitDecimalPlaces(double.parse(jsonResponse.data.lat)),
+      limitDecimalPlaces(double.parse(jsonResponse.data.long)),
+      limitDecimalPlaces(position.latitude),
+      limitDecimalPlaces(position.longitude),
+    );
 
-    // print(distanceInMeters);
-    // if (distanceInMeters > 50) {
-    //   emit(PresenceState(
-    //       status: ClockedStatus.error, message: 'Lokasi tidak sesuai'));
-    //   return;
-    // }
+    if (distanceInMeters > 200) {
+      emit(PresenceState(
+        status: ClockedStatus.error,
+        message: 'Lokasi tidak sesuai',
+      ));
+      emit(state);
+      return;
+    }
 
     final response = await presenceRepository.clockOut(ClockOutRequest(
         id: event.id, coLong: position.longitude, coLat: position.latitude));
